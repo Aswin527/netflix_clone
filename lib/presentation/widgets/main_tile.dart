@@ -12,7 +12,7 @@ class MainTile extends StatelessWidget {
       decoration: BoxDecoration(
           image: DecorationImage(
               image: NetworkImage(
-                  "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/qhPtAc1TKbMPqNvcdXSOn9Bn7hZ.jpg"))),
+                  "https://image.tmdb.org/t/p/w600_and_h900_bestv2/or06FN3Dka5tukK1e9sl16pB3iy.jpg"))),
     );
   }
 }

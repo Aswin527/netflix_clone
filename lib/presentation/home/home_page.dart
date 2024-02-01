@@ -1,95 +1,120 @@
 import 'package:flutter/material.dart';
-import 'package:netflix_clone/core/colors/colors.dart';
+import 'package:flutter/rendering.dart';
+import 'package:netflix_clone/core/constants.dart';
+import 'package:netflix_clone/presentation/home/widgets/background_widget.dart';
 import 'package:netflix_clone/presentation/home/widgets/number_tile.dart';
-
 import '../widgets/main_tile_widget.dart';
+
+ValueNotifier<bool> scrollNotifier = ValueNotifier(false);
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final _size = MediaQuery.of(context).size;
+    //final _size = MediaQuery.of(context).size;
     return Scaffold(
-      body: SafeArea(
-          child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  width: double.maxFinite,
-                  height: _size.height * 0.8,
-                  decoration: const BoxDecoration(
-                      image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage(
-                              "https://image.tmdb.org/t/p/w600_and_h900_bestv2/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg"))),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      CustomIconButton(icon: Icons.add, name: "MyList"),
-                      _PlayButton(),
-                      CustomIconButton(icon: Icons.info, name: "Info")
+        body: SafeArea(
+      child: ValueListenableBuilder(
+          valueListenable: scrollNotifier,
+          builder: (context, value, _) {
+            return NotificationListener<UserScrollNotification>(
+              onNotification: (notification) {
+                final ScrollDirection direction = notification.direction;
+                if (direction == ScrollDirection.reverse ||
+                    (AxisDirection.left == true &&
+                        AxisDirection.right == true)) {
+                  scrollNotifier.value = false;
+                } else if (direction == ScrollDirection.forward) {
+                  scrollNotifier.value = true;
+                }
+                return true;
+              },
+              child: Stack(
+                children: [
+                  ListView(
+                    children: const [
+                      BackgroundWidget(),
+                      MainTileWidget(
+                        title: "Released in the Past Year",
+                      ),
+                      MainTileWidget(
+                        title: "Trending Now",
+                      ),
+                      NumberCardTile(),
+                      MainTileWidget(
+                        title: "Tense Dramas",
+                      ),
+                      MainTileWidget(
+                        title: "South Indian Drama",
+                      ),
                     ],
                   ),
-                )
-              ],
-            ),
-            const MainTileWidget(
-              title: "Released in the Past Year",
-            ),
-            const MainTileWidget(
-              title: "Trending Now",
-            ),
-            const NumberCardTile(),
-            const MainTileWidget(
-              title: "Tense Dramas",
-            ),
-            const MainTileWidget(
-              title: "South Indian Drama",
-            ),
-          ],
-        ),
-      )),
-    );
-  }
-
-  TextButton _PlayButton() {
-    return TextButton.icon(
-        style: const ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(kWhite)),
-        onPressed: () => {},
-        icon: const Icon(
-          Icons.play_arrow,
-          color: Colors.black,
-        ),
-        label: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            "Play",
-            style: TextStyle(color: Colors.black),
-          ),
-        ));
+                  scrollNotifier.value == true ? TopBarWidget() : kHeight
+                ],
+              ),
+            );
+          }),
+    ));
   }
 }
 
-class CustomIconButton extends StatelessWidget {
-  const CustomIconButton({Key? key, required this.icon, required this.name})
-      : super(key: key);
-
-  final IconData icon;
-  final String name;
+class TopBarWidget extends StatelessWidget {
+  const TopBarWidget({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [Icon(icon), Text(name)],
+    final Size size = MediaQuery.of(context).size;
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 5000),
+      color: Colors.black.withOpacity(0.3),
+      height: size.height * 0.12,
+      width: double.infinity,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10, left: 10),
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: const BoxDecoration(
+                      image: DecorationImage(
+                          image: NetworkImage(
+                              "https://pngimg.com/uploads/netflix/netflix_PNG8.png"))),
+                ),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.cast_connected_outlined)),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 18),
+                    child: Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: NetworkImage(
+                                  "https://wallpapers.com/images/high/netflix-profile-pictures-5yup5hd2i60x7ew3.webp"))),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+          kHeight,
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [Text("TV Shows"), Text("Movies"), Text("Categories")],
+          )
+        ],
+      ),
     );
   }
 }
